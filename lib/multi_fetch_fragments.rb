@@ -22,7 +22,10 @@ module MultiFetchFragments
         keys_to_collection_map = {}
 
         # clone the original collection so we can manipulate it without affecting the original
-        @collection = @collection.clone
+        #@collection = @collection.clone
+        collection_array = @collection.to_a
+        collection_array = @collection.clone if collection_array.equal?(@collection)
+        @collection = collection_array
 
         @collection.each do |item|
           key = @options[:cache].respond_to?(:call) ? @options[:cache].call(item) : item
