@@ -38,7 +38,7 @@ module MultiFetchFragments
 
           keys_to_collection_map[expanded_key] = item
 
-          if item.is_a?(MenuItem)
+          if item.respond_to?(:cache_life)
             @expires_collection[expanded_key] = item.cache_life
           else
             @expires_collection[expanded_key] = 1.year
