@@ -38,7 +38,7 @@ module MultiFetchFragments
 
           keys_to_collection_map[expanded_key] = item
 
-          @expires_collection[expanded_key] = item.cache_life || 1.year
+          @expires_collection[expanded_key] = item.cache_life || 1.year if item.respond_to?('cache_life')
 
         end
 
