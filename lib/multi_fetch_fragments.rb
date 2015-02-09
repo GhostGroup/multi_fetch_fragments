@@ -38,11 +38,7 @@ module MultiFetchFragments
 
           keys_to_collection_map[expanded_key] = item
 
-          if item.respond_to?(:cache_life)
-            @expires_collection[expanded_key] = item.cache_life
-          else
-            @expires_collection[expanded_key] = 1.year
-          end
+          @expires_collection[expanded_key] = item.cache_life || 1.year
 
         end
 
@@ -75,9 +71,7 @@ module MultiFetchFragments
             results << cached_value
           else
             non_cached_result = non_cached_results.shift
-            if !@expires_collection.empty?
-              additional_cache_options = {:expires_in => @expires_collection[key]}
-            end
+            additional_cache_options.merge!(:expires_in => @expires_collection[key]) if @expires_collection.has_key?(key)
             Rails.cache.write(key, non_cached_result, additional_cache_options)
 
             results << non_cached_result
