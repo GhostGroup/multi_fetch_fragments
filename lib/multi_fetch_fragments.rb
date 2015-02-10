@@ -26,6 +26,7 @@ module MultiFetchFragments
         collection_array = @collection.to_a
         collection_array = @collection.clone if collection_array.equal?(@collection)
         @collection = collection_array
+        @expires_collection = {}
 
         @collection.each do |item|
           key = @options[:cache].respond_to?(:call) ? @options[:cache].call(item) : item
@@ -40,6 +41,7 @@ module MultiFetchFragments
           expanded_key = @view.controller.fragment_cache_key(key_with_optional_digest)
 
           keys_to_collection_map[expanded_key] = item
+          @expires_collection[expanded_key] = item.cache_life || 1.year if item.respond_to?('cache_life')
         end
 
         # cache.read_multi & cache.write interfaces may require mutable keys, ie. dalli 2.6.0
@@ -71,6 +73,7 @@ module MultiFetchFragments
             results << cached_value
           else
             non_cached_result = non_cached_results.shift
+            additional_cache_options.merge!(:expires_in => @expires_collection[key]) if @expires_collection.has_key?(key)
             Rails.cache.write(key, non_cached_result, additional_cache_options)
 
             results << non_cached_result
